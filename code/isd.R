@@ -5,15 +5,10 @@ library(tidybayes)
 library(dplyr)
 library(isdbayes)
 
-# get data
-dat_clauset_xmins = readRDS("data/dat_clauset_xmins.rds")
+# recalling data
+dat_clauset_xmins = readRDS(file = "data/dat_clauset_xmins.rds")
 
-# first model (test) -------------------------------------------------------------
-test_dat = sizes_sep %>%
-  filter(date == "20230531")
-
-#ISD model of treatments and chl
-
+#isd model
 brm_full_tank_xmin = brm(pg_dm | vreal(counts, xmin, xmax) ~ 1 + heat + fish + 
                       heat:fish + chl + (1|date) + (1|tank),
                     data = dat_clauset_xmins,
@@ -27,7 +22,13 @@ brm_full_tank_xmin = brm(pg_dm | vreal(counts, xmin, xmax) ~ 1 + heat + fish +
                     file = 'models/brm_full_tank_xmin.rds',  # keep don't change
                     file_refit = "on_change")       # keep don't change
 
-brm_full_tank_xmin_update = update(brm_full_tank_xmin,  chains = 2, iter = 2000)
+#model update
+brm_full_tank_xmin_update = update(brm_full_tank_xmin,  chains = 4, iter = 2000)
 saveRDS(brm_full_tank_xmin_update, file = "models/brm_full_tank_xmin_update.rds")
 
+#visualizing model
 conditional_effects((brm_full_tank_xmin_update))
+
+#posterior checks
+pp_check(brm_full_tank_xmin_update) + scale_x_log10()
+pp_check(brm_full_tank_xmin_update, type = "boxplot") + scale_y_log10()

@@ -30,25 +30,3 @@ dat_clauset_xmins = readRDS("data/sizes_sep_sub.rds") %>%
   mutate(xmin = xmin_clauset)
 
 saveRDS(dat_clauset_xmins, file = "data/dat_clauset_xmins.rds")
-
-
-
-readRDS("data/sizes_sep_sub.rds") %>% 
-  left_join(xmins_clauset) %>% 
-  group_by(tank, date) %>% 
-  filter(pg_dm >= xmin_clauset) %>% 
-  distinct(xmin, xmin_clauset, date, tank) %>% 
-  ggplot(aes(x = xmin, y = xmin_clauset)) +
-  geom_point()
-
-
-readRDS("data/sizes_sep_sub.rds") %>% 
-  left_join(xmins_clauset) %>% 
-  group_by(tank, date) %>% 
-  mutate(id = cur_group_id()) %>% 
-  filter(id == 8) %>% 
-  ggplot(aes(x = pg_dm)) + 
-  geom_density() +
-  # scale_x_log10() +
-  geom_vline(aes(xintercept = xmin_clauset)) +
-  geom_vline(aes(xintercept = xmin))
